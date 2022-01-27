@@ -1,0 +1,132 @@
+import QtQuick 2.15
+import QtQuick.Window 2.15
+import QtQuick.Layouts 1.12
+import QtQuick.Controls 2.12
+
+Window {
+    id: window
+    width: 240
+    height: 680
+    minimumWidth: width
+    minimumHeight: height
+    maximumWidth: width
+    maximumHeight: height
+
+    visible: true
+    title: qsTr("Remote control")
+
+    property int buttonHeight: 50
+
+    property int channel: 0
+    property int channelMax: 9
+    property int volume: 50
+
+    //каналы переключаются с последнего на первый и наоборот
+    function channelCheckLimits(varChannel)
+    {
+        return varChannel > channelMax ? 0 : varChannel < 0 ? channelMax : varChannel
+    }
+
+    //громкость находится в пределах от 0 до 100
+    function volumeCheckLimits(varVolume)
+    {
+        return varVolume > 100 ? 100 : varVolume < 0 ? 0 : varVolume
+    }
+
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 5
+        spacing: 5
+
+        //кнопки каналов от 0 до 9
+        GridLayout {
+            rows: 5
+            columns: 2
+            Layout.fillHeight: true
+
+            Repeater {
+                id: repeater
+                model: channelMax + 1
+
+                Button {
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: window.buttonHeight
+                    text: index
+                    font.pixelSize: 50
+                    onClicked: window.channel = text * 1
+                }
+            }
+        }
+
+        //кнопки переключения каналов на предыдущий и следующий
+        RowLayout {
+            spacing:5
+            Layout.fillHeight: true
+
+            Button {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.preferredHeight: window.buttonHeight
+                text: "-"
+                font.pixelSize: 50
+                onClicked: window.channel = channelCheckLimits(--window.channel)
+            }
+
+            Text {
+                text: "Channel"
+            }
+
+            Button {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.preferredHeight: window.buttonHeight
+                text: "+"
+                font.pixelSize: 50
+                onClicked: window.channel = channelCheckLimits(++window.channel)
+            }
+        }
+
+        //кнопки уменьшения и увеличивания громкости
+        RowLayout {
+            spacing: 5
+            Layout.fillHeight: true
+
+            Button {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.preferredHeight: window.buttonHeight
+                text: "-"
+                font.pixelSize: 50
+                onClicked: window.volume = volumeCheckLimits(window.volume - 10)
+            }
+
+            Text {
+                text: "Volume"
+            }
+
+            Button {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.preferredHeight: window.buttonHeight
+                text: "+"
+                font.pixelSize: 50
+                onClicked: window.volume = volumeCheckLimits(window.volume + 10)
+            }
+        }
+
+        //дисплей отображения текущего статуса
+        Rectangle {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            Layout.preferredHeight: window.buttonHeight
+            border.width: 5
+
+            Text {
+                anchors.centerIn: parent
+                text: "C:" + window.channel + ", V:" + window.volume
+                font.pixelSize: 45
+            }
+        }
+    }
+}
